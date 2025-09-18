@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Minimal Flask Vision</title>
+  </head>
+  <body>
+    <h1>Upload an image</h1>
+
+    <form action="/analyze" method="post" enctype="multipart/form-data">
+      <input type="file" name="image" accept="image/*" required>
+      <button type="submit">Analyze</button>
+    </form>
+
+    {% if error %}
+      <hr>
+      <h2>Error</h2>
+      <pre>{{ error }}</pre>
+    {% endif %}
+
+    {% if results %}
+      <hr>
+      <h2>Results</h2>
+
+      {% if results.summary %}
+        <p><strong>Summary:</strong> {{ results.summary }}</p>
+      {% endif %}
+
+      {% if results.objects and results.objects|length > 0 %}
+        <h3>Objects</h3>
+        <ul>
+          {% for obj in results.objects %}
+            <li>
+              {{ obj.name }}
+              {% if obj.confidence is not none %}
+                ({{ "%.2f"|format(obj.confidence) }})
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No objects detected.</p>
+      {% endif %}
+
+      <h3>Raw JSON</h3>
+      <pre>{{ results|tojson(indent=2) }}</pre>
+    {% endif %}
+  </body>
+</html>
